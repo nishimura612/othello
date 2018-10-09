@@ -14,6 +14,7 @@ feild = [
 dy = [-1, -1, -1, 0, 1, 1,  1,  0]
 dx = [-1,  0,  1, 1, 1, 0, -1, -1]
 
+
 def init():
     for i in range(1,9):
         for j in range(1,9):
@@ -29,45 +30,48 @@ def feild_cnt():
     return cnt
 
 def check_flip(sy, sx, turn):
-    if feild[sy][sx] != 0:
+    if feild[sy][sx] != 0 and feild[sy][sx] != 4:
+        # print("test1")
         return -1
     
     for i in range(len(dy)):
-        ny = 0
-        nx = 0
+        ny = dy[i]
+        nx = dx[i]
         flag = 0
-        while True:
-            ny += dy[i]
-            nx += dx[i] 
-            if (0 < sy+ny and sy+ny < 9) and (0 < sx+nx and sx+nx < 9) and (feild[sy+ny][sx+nx] == 0 or feild[sy+ny][sx+nx] == 4):
-                break
+        # print("feild : ",end="")
+        # print(feild[sy+ny][sx+nx])
 
-            if feild[sy+ny][sx+nx] == 3:
-                break
-            if flag == 1 and feild[sy+ny][sx+nx] == turn:
-                return 1
-            elif feild[sy+ny][sx+nx] == 3 - turn:
-                flag = 1
-                continue
+        while feild[sy+ny][sx+nx] == 3 - turn:
+            # print("test")
+            # print(feild[sy+ny][sx+nx])
+            flag = 1
+            ny += dy[i]
+            nx += dx[i]
+    
+        if(flag == 1 and feild[sy+ny][sx+nx] == turn):
+            return 1
     return -1
+
 
 def flip(sy, sx, turn):
     feild[sy][sx] = turn
     for i in range(len(dy)):
-        ny = 0
-        nx = 0
+        ny = dy[i]
+        nx = dx[i]
         flag = 0
-        while True:
+        while feild[sy+ny][sx+nx] == 3 - turn:
+            flag = 1
             ny += dy[i]
             nx += dx[i]
-            if feild[sy+ny][sx+nx] == 3:
-                break
-            if flag == 1 and feild[sy+ny][sx+nx] == turn:
-                break
-            elif feild[sy+ny][sx+nx] == 3 - turn:
-                flag = 1
+        if(flag == 1 and feild[sy+ny][sx+nx] == turn):
+            ny = dy[i]
+            nx = dx[i]
+            flag = 0
+            while feild[sy+ny][sx+nx] == 3 - turn:
                 feild[sy+ny][sx+nx] = turn
-                continue
+                flag = 1
+                ny += dy[i]
+                nx += dx[i]   
 
 def display():
     print("  1 2 3 4 5 6 7 8")
@@ -76,7 +80,7 @@ def display():
         for j in range(1, 9):
             if j == 8:
                 if feild[i][j] == 0:
-                    print('⬜︎')
+                    print('□')
                 elif feild[i][j] == 1:
                     print('●')
                 elif feild[i][j] == 2:
@@ -85,7 +89,7 @@ def display():
                     print('■')
             else:
                 if feild[i][j] == 0:
-                    print('⬜︎', end=" ")
+                    print('□', end=" ")
                 elif feild[i][j] == 1:
                     print('●', end=" ")
                 elif feild[i][j] == 2:
@@ -102,6 +106,9 @@ def othello():
             for j in range(1,9):
                 if check_flip(i,j,turn) == 1:
                     feild[i][j] = 4
+
+        # print(check_flip(0,0,turn))
+        # print(check_flip(3,4,turn))
         display()
         if turn == 2:
             print("手番は黒です")
@@ -110,7 +117,7 @@ def othello():
         print("駒を置く添字を指定してください")
         y = int(input("y座標"))
         x = int(input("x座標"))
-        if feild[y][x] == 4:
+        if check_flip(y,x,turn) == 1:
             flip(y, x, turn)
         elif feild[y][x] == 0:
             print("ここに石は置けません")
